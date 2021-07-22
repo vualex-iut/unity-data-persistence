@@ -11,21 +11,24 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    [SerializeField] Text bestScoreText;
     public GameObject GameOverText;
-    
+
     private bool m_Started = false;
     private int m_Points;
-    
+
     private bool m_GameOver = false;
 
-    
+
     // Start is called before the first frame update
     void Start()
     {
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
-        
-        int[] pointCountArray = new [] {1,1,2,2,5,5};
+
+        UpdateBestScoreText();
+
+        int[] pointCountArray = new[] { 1, 1, 2, 2, 5, 5 };
         for (int i = 0; i < LineCount; ++i)
         {
             for (int x = 0; x < perLine; ++x)
@@ -70,7 +73,27 @@ public class MainManager : MonoBehaviour
 
     public void GameOver()
     {
+        if (string.IsNullOrEmpty(MainDataManager.instance.bestScorePlayerName) ||
+            m_Points > MainDataManager.instance.bestScore)
+        {
+            MainDataManager.instance.bestScore = m_Points;
+            MainDataManager.instance.bestScorePlayerName = MainDataManager.instance.currentPlayerName;
+            MainDataManager.instance.SaveGameData();
+            UpdateBestScoreText();
+        }
         m_GameOver = true;
         GameOverText.SetActive(true);
+    }
+
+    private void UpdateBestScoreText()
+    {
+        if (!string.IsNullOrEmpty(MainDataManager.instance.bestScorePlayerName))
+        {
+            bestScoreText.text = $"Best Score : {MainDataManager.instance.bestScore} ({MainDataManager.instance.bestScorePlayerName})";
+        }
+        else
+        {
+            bestScoreText.text = "No Best Score Available";
+        }
     }
 }
